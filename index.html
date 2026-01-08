@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CheerfulGoat 完整版</title>
+    <title>CheerfulGoat 终极完美版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #fff7ed; font-family: sans-serif; padding: 20px; }
@@ -16,12 +16,27 @@
         table { width: 100%; border-collapse: collapse; }
         td { padding: 15px; border-bottom: 1px solid #f9fafb; vertical-align: middle; }
         .status-select { width: 100%; padding: 6px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 11px; font-weight: bold; background: #f9fafb; margin-bottom: 8px; outline: none; }
-        .btn-action { width: 100%; padding: 6px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; margin-bottom: 4px; border: 1px solid transparent; text-align: center; }
+        .btn-action { width: 100%; padding: 6px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; margin-bottom: 4px; border: 1px solid transparent; text-align: center; transition: all 0.2s; }
+        .btn-action:active { transform: scale(0.95); } /* 点击时缩小的动画 */
         .btn-edit { color: #f97316; background: #fff7ed; border-color: #ffedd5; }
         .btn-delete { color: #dc2626; background: #fef2f2; border-color: #fee2e2; }
+        
+        /* 🔔 爷爷，这是新增的提示条样式 */
+        #toast {
+            position: fixed; top: 20px; right: 20px; z-index: 100;
+            padding: 12px 24px; border-radius: 15px; color: white; font-weight: bold;
+            display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(-100px); opacity: 0; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        #toast.show { transform: translateY(0); opacity: 1; }
     </style>
 </head>
 <body class="bg-orange-50/30">
+    <div id="toast" class="bg-green-600">
+        <span id="toastIcon">✅</span>
+        <span id="toastMessage">操作成功</span>
+    </div>
+
     <script>
         const token = localStorage.getItem('cheerful_goat_token');
         if (!token) { window.location.href = 'login.html'; }
@@ -33,7 +48,7 @@
                 <img src="WechatIMG473.jpg" alt="Logo" class="logo-img">
             </div>
             <h1 style="font-size: 24px; font-weight: 900; margin: 5px 0;">CheerfulGoat</h1>
-            <p style="color: #ea580c; font-weight: bold; font-size: 12px;">跨境业务任务管理 · 完整功能版</p>
+            <p style="color: #ea580c; font-weight: bold; font-size: 12px;">跨境业务管理 · 终极完美版</p>
             <button onclick="logout()" style="color: #9ca3af; text-decoration: underline; font-size: 12px; border: none; background: none; cursor: pointer;">安全登出</button>
         </div>
         
@@ -48,13 +63,12 @@
                             <option>TikTok</option><option>B端</option><option>杂项</option>
                         </select>
                         <input type="date" id="deadline" style="padding: 12px; border: 1px solid #eee; border-radius: 10px;">
-                        <textarea id="description" placeholder="任务详细描述/备注" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; height: 80px;"></textarea>
+                        <textarea id="description" placeholder="详细描述/备注" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; height: 80px;"></textarea>
                         
                         <div style="display: flex; align-items: center; padding: 10px; background: #fef2f2; border-radius: 10px; border: 1px solid #fee2e2;">
                             <input type="checkbox" id="is_urgent" style="width: 18px; height: 18px;">
-                            <label style="margin-left: 10px; color: #b91c1c; font-weight: bold; font-size: 14px;">紧急任务 🔥</label>
+                            <label style="margin-left: 10px; color: #b91c1c; font-weight: bold;">紧急任务 🔥</label>
                         </div>
-                        <div id="loadingStatus" style="font-size: 11px; color: #f97316; font-weight: bold; text-align: center; display: none;">⏳ 正在云端同步...</div>
                         <button type="submit" id="submitBtn" style="background: #f97316; color: white; font-weight: bold; padding: 14px; border: none; border-radius: 10px; cursor: pointer;">提交任务</button>
                     </form>
                 </div>
@@ -62,7 +76,7 @@
 
             <div class="right-side">
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="🔍 搜索任务..." style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ffedd5; outline: none;">
+                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="🔍 快速检索..." style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ffedd5; outline: none;">
                     <select id="filterPlatform" onchange="applyFilters()" style="padding: 12px; border-radius: 12px; border: 1px solid #ffedd5;">
                         <option value="全部平台">全部平台</option>
                         <option>亚马逊</option><option>独立站</option><option>虾皮</option><option>TikTok</option><option>B端</option><option>杂项</option>
@@ -72,7 +86,7 @@
                 <div class="card" style="padding: 0;">
                     <div style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
                         <h2 style="font-weight: bold;">📊 实时看板</h2>
-                        <span id="taskCount" style="font-size: 11px; color: #f97316;">--</span>
+                        <span id="taskCount" style="font-size: 11px; color: #f97316; font-weight: bold;">加载中...</span>
                     </div>
                     <div style="overflow-x: auto;">
                         <table>
@@ -82,14 +96,28 @@
                 </div>
             </div>
         </div>
-        <div style="text-align: center; margin-top: 40px; color: #cbd5e1; font-size: 10px; font-weight: bold;">
-            VERSION: 2026.01.08.COMPLETE_RECOVERY
+        <div style="text-align: center; margin-top: 40px; color: #cbd5e1; font-size: 10px; font-weight: bold; letter-spacing: 2px;">
+            VERSION: 2026.01.08.ULTIMATE_PRO
         </div>
     </div>
 
     <script>
         const API_BASE = "https://cheerfulgoat-task-system.onrender.com";
         let allTasks = [];
+
+        // 🟢 爷爷，这就是显示“操作成功”的咒语
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastMsg.textContent = msg;
+            toastIcon.textContent = isError ? '❌' : '✅';
+            toast.style.backgroundColor = isError ? '#dc2626' : '#059669';
+            
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000); // 3秒后自动消失
+        }
 
         async function fetchWithAuth(url, options = {}) {
             const token = localStorage.getItem('cheerful_goat_token');
@@ -101,11 +129,10 @@
 
         document.getElementById('taskForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            toggleLoading(true);
             const data = {
                 title: document.getElementById('title').value,
                 platform: document.getElementById('platform').value,
-                description: document.getElementById('description').value, // 描述：已恢复
+                description: document.getElementById('description').value,
                 is_urgent: document.getElementById('is_urgent').checked,
                 deadline: document.getElementById('deadline').value || null
             };
@@ -114,8 +141,11 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            toggleLoading(false);
-            if (res && res.ok) { document.getElementById('taskForm').reset(); fetchTasks(); }
+            if (res && res.ok) { 
+                document.getElementById('taskForm').reset(); 
+                fetchTasks(); 
+                showToast("新任务已成功发布！"); // 提示
+            }
         });
 
         async function fetchTasks() {
@@ -139,7 +169,6 @@
             list.innerHTML = '';
             const todayStr = new Date().toLocaleDateString();
 
-            // 排序逻辑保持不变
             tasks.sort((a, b) => {
                 if (a.status === '已完成' && b.status !== '已完成') return 1;
                 if (a.status !== '已完成' && b.status === '已完成') return -1;
@@ -153,16 +182,15 @@
             tasks.forEach(task => {
                 const row = document.createElement('tr');
                 const dDate = task.deadline ? new Date(task.deadline) : null;
-                const deadlineStr = dDate ? dDate.toLocaleDateString() : '长期';
                 const statusColor = task.status === '已完成' ? '#9ca3af' : (task.is_urgent ? '#dc2626' : '#f97316');
                 const isToday = dDate ? dDate.toLocaleDateString() === todayStr : false;
 
                 row.innerHTML = `
-                    <td style="width:80px;"><span style="font-size:10px; font-weight:bold; color:white; background:${statusColor}; padding:3px 8px; border-radius:6px; display:inline-block;">${task.status} ${task.is_urgent ? '🔥' : ''}</span></td>
+                    <td style="width:80px;"><span style="font-size:10px; font-weight:bold; color:white; background:${statusColor}; padding:3px 8px; border-radius:6px;">${task.status}</span></td>
                     <td>
-                        <div style="font-size:14px; font-weight:bold; color: #1f2937;">[${task.platform}] ${task.title}</div>
+                        <div style="font-size:14px; font-weight:bold;">[${task.platform}] ${task.title}</div>
                         <div style="font-size:11px; color:#6b7280; margin: 3px 0;">${task.description || ''}</div>
-                        <div style="font-size:10px; ${isToday ? 'color:red;font-weight:bold;' : 'color:#9ca3af;'}">📅 ${isToday ? '今天截止' : '截止: ' + deadlineStr}</div>
+                        <div style="font-size:10px; ${isToday ? 'color:red;font-weight:bold;' : 'color:#9ca3af;'}">📅 ${isToday ? '今天截止' : '截止: ' + (dDate?dDate.toLocaleDateString():'长期')}</div>
                     </td>
                     <td style="width:110px;">
                         <div style="display: flex; flex-direction: column;">
@@ -171,7 +199,7 @@
                                 <option value="进行中" ${task.status === '进行中' ? 'selected' : ''}>进行中</option>
                                 <option value="已完成" ${task.status === '已完成' ? 'selected' : ''}>已完成</option>
                             </select>
-                            <button onclick="editTask(${task.id})" class="btn-action btn-edit">🔧 修改内容</button>
+                            <button onclick="editTask(${task.id})" class="btn-action btn-edit">🔧 修改</button>
                             <button onclick="confirmDelete(${task.id})" class="btn-action btn-delete">🗑️ 删除</button>
                         </div>
                     </td>
@@ -182,49 +210,29 @@
 
         async function editTask(id) {
             const task = allTasks.find(t => t.id === id);
-            if (!task) return;
+            const newTitle = prompt("修改标题：", task.title); if (newTitle === null) return;
+            const newDesc = prompt("修改描述：", task.description || ""); if (newDesc === null) return;
+            const newDate = prompt("修改日期 (YYYY-MM-DD)：", task.deadline ? task.deadline.split('T')[0] : ""); if (newDate === null) return;
+            const newUrgent = confirm("是否设为紧急？");
 
-            const newTitle = prompt("修改标题：", task.title);
-            if (newTitle === null) return;
-
-            const newDesc = prompt("修改描述/备注：", task.description || ""); // 修改描述：已恢复
-            if (newDesc === null) return;
-
-            const newDate = prompt("修改日期 (YYYY-MM-DD)：", task.deadline ? task.deadline.split('T')[0] : "");
-            if (newDate === null) return;
-
-            const newUrgent = confirm("是否设为紧急任务？");
-
-            toggleLoading(true);
             const res = await fetchWithAuth(`${API_BASE}/tasks/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: newTitle,
-                    description: newDesc,
-                    deadline: newDate || null,
-                    is_urgent: newUrgent
-                })
+                body: JSON.stringify({ title: newTitle, description: newDesc, deadline: newDate || null, is_urgent: newUrgent })
             });
-            toggleLoading(false);
-            if (res && res.ok) fetchTasks();
+            if (res && res.ok) { fetchTasks(); showToast("内容已更新！"); }
         }
 
         async function updateStatus(id, newStatus) {
-            await fetchWithAuth(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, { method: 'PUT' });
-            fetchTasks();
+            const res = await fetchWithAuth(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, { method: 'PUT' });
+            if (res && res.ok) { fetchTasks(); showToast("状态已同步！"); }
         }
 
         async function confirmDelete(id) {
             if (confirm("⚠️ 确定要删除吗？")) {
                 const res = await fetchWithAuth(`${API_BASE}/tasks/${id}`, { method: 'DELETE' });
-                if (res && res.ok) fetchTasks();
+                if (res && res.ok) { fetchTasks(); showToast("任务已清除！"); }
             }
-        }
-
-        function toggleLoading(show) {
-            document.getElementById('loadingStatus').style.display = show ? 'block' : 'none';
-            document.getElementById('submitBtn').disabled = show;
         }
 
         function logout() { localStorage.removeItem('cheerful_goat_token'); window.location.href = 'login.html'; }
