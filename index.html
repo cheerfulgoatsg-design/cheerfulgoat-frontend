@@ -11,12 +11,9 @@
 </head>
 <body class="bg-orange-50/30 min-h-screen p-4 md:p-8 text-gray-800">
     <script>
-        // 【第一步：保安检查】一进门先看有没有“通行证”
+        // 【保安检查】确认是否有通行证
         const token = localStorage.getItem('cheerful_goat_token');
-        if (!token) {
-            // 没证件，立刻扭送到登录页
-            window.location.href = 'login.html';
-        }
+        if (!token) { window.location.href = 'login.html'; }
     </script>
 
     <div class="max-w-6xl mx-auto">
@@ -33,12 +30,12 @@
             <div class="lg:col-span-1">
                 <div class="bg-white p-6 rounded-2xl shadow-xl border border-orange-100 sticky top-8">
                     <h2 class="text-xl font-bold mb-6 flex items-center">
-                        <span class="bg-orange-500 text-white p-1.5 rounded-lg mr-2">＋</span>发布新任务
+                        <span class="bg-orange-500 text-white p-1.5 rounded-lg mr-2 text-sm">＋</span>发布新任务
                     </h2>
                     <form id="taskForm" class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">任务标题</label>
-                            <input type="text" id="title" required class="w-full border-gray-200 bg-gray-50 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-500">
+                            <input type="text" id="title" required class="w-full border-gray-200 bg-gray-50 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-500 transition-all">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
@@ -61,38 +58,37 @@
                             <input type="checkbox" id="is_urgent" class="h-5 w-5 text-orange-600 rounded">
                             <label class="ml-3 text-sm text-orange-700 font-bold italic">紧急处理 🔥</label>
                         </div>
-                        <button type="submit" class="w-full bg-orange-500 text-white font-bold py-4 rounded-xl hover:bg-orange-600 shadow-lg shadow-orange-200 transition-all">确认提交</button>
+                        <button type="submit" class="w-full bg-orange-500 text-white font-bold py-4 rounded-xl hover:bg-orange-600 shadow-lg shadow-orange-200 transition-all">确认提交任务</button>
                     </form>
-                    <div id="message" class="mt-4 text-center hidden p-3 rounded-xl font-bold"></div>
                 </div>
             </div>
 
             <div class="lg:col-span-2 space-y-6">
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-wrap gap-4 items-center">
-                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="🔍 搜索任务..." class="flex-1 min-w-[200px] bg-gray-50 border-none rounded-xl px-4 py-2 outline-none">
+                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="🔍 搜索任务标题..." class="flex-1 min-w-[200px] bg-gray-50 border-none rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-orange-200">
                     <select id="filterPlatform" onchange="applyFilters()" class="bg-gray-50 border-none rounded-xl px-4 py-2 text-sm outline-none">
                         <option value="全部平台">全部平台</option>
                         <option>亚马逊</option><option>独立站</option><option>虾皮</option>
                         <option>TikTok</option><option>B端</option><option>杂项</option>
                     </select>
-                    <button onclick="fetchTasks()" class="p-2 bg-orange-50 text-orange-600 rounded-xl">🔄 刷新</button>
+                    <button onclick="fetchTasks()" class="p-2 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-colors">🔄 刷新</button>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <div class="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                         <h2 class="font-bold text-gray-700">任务实时看板</h2>
-                        <span id="taskCount" class="text-xs font-bold text-gray-400">正在同步...</span>
+                        <span id="taskCount" class="text-xs font-bold text-gray-400 bg-white px-2 py-1 rounded-md border border-gray-100">正在同步...</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead class="bg-gray-50/50 text-left">
                                 <tr>
                                     <th class="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">状态</th>
-                                    <th class="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">详情</th>
-                                    <th class="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest text-center">管理</th>
+                                    <th class="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">任务详情</th>
+                                    <th class="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest text-center">操作</th>
                                 </tr>
                             </thead>
-                            <tbody id="taskList" class="divide-y divide-gray-50"></tbody>
+                            <tbody id="taskList" class="divide-y divide-gray-50 text-sm"></tbody>
                         </table>
                     </div>
                 </div>
@@ -104,7 +100,7 @@
         const API_BASE = "https://cheerfulgoat-task-system.onrender.com";
         let allTasks = [];
 
-        // 【核心：带证件的搬运工】以后每次跟后台说话都要带上 Token
+        // 带证件的请求工具
         async function fetchWithAuth(url, options = {}) {
             const token = localStorage.getItem('cheerful_goat_token');
             options.headers = {
@@ -113,7 +109,6 @@
             };
             const response = await fetch(url, options);
             if (response.status === 401) {
-                // 如果后台说证件失效了，就踢回登录页
                 localStorage.removeItem('cheerful_goat_token');
                 window.location.href = 'login.html';
                 return;
@@ -121,6 +116,7 @@
             return response;
         }
 
+        // 提交任务
         document.getElementById('taskForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const data = {
@@ -141,6 +137,7 @@
             }
         });
 
+        // 获取任务
         async function fetchTasks() {
             const response = await fetchWithAuth(`${API_BASE}/tasks/`);
             if (response && response.ok) {
@@ -150,6 +147,7 @@
             }
         }
 
+        // 筛选逻辑
         function applyFilters() {
             const searchText = document.getElementById('searchInput').value.toLowerCase();
             const platformFilter = document.getElementById('filterPlatform').value;
@@ -160,38 +158,80 @@
             renderTaskList(filtered);
         }
 
+        // 渲染列表
         function renderTaskList(tasks) {
             const list = document.getElementById('taskList');
             list.innerHTML = '';
+            
+            // 按紧急程度和日期排序
+            tasks.sort((a, b) => (b.is_urgent - a.is_urgent));
+
             tasks.forEach(task => {
                 const row = document.createElement('tr');
-                const isUrgent = task.is_urgent;
-                const statusStyle = task.status === '已完成' ? 'bg-gray-100 text-gray-400' : (isUrgent ? 'bg-red-50 text-red-600 animate-pulse border-red-100' : 'bg-orange-50 text-orange-600 border-orange-100');
+                row.className = "hover:bg-orange-50/20 transition-colors";
+                
+                // 截止日期提醒逻辑
+                let deadlineHtml = '长期';
+                let deadlineClass = 'text-gray-400';
+                if (task.deadline) {
+                    const dDate = new Date(task.deadline);
+                    const now = new Date();
+                    const diffHours = (dDate - now) / (1000 * 60 * 60);
+                    
+                    if (diffHours < 0) {
+                        deadlineHtml = `⚠️ 已逾期 (${dDate.toLocaleDateString()})`;
+                        deadlineClass = 'text-red-600 font-black';
+                    } else if (diffHours < 24) {
+                        deadlineHtml = `⏰ 即将到期 (${dDate.toLocaleDateString()})`;
+                        deadlineClass = 'text-red-500 font-bold animate-pulse';
+                    } else {
+                        deadlineHtml = `📅 ${dDate.toLocaleDateString()}`;
+                    }
+                }
+
+                const statusStyle = task.status === '已完成' ? 'bg-gray-100 text-gray-400 border-gray-200' : (task.is_urgent ? 'bg-red-50 text-red-600 border-red-100 animate-pulse' : 'bg-orange-50 text-orange-600 border-orange-100');
                 
                 row.innerHTML = `
-                    <td class="px-6 py-6"><span class="px-3 py-1 text-xs font-bold rounded-full border ${statusStyle}">${task.status}</span></td>
                     <td class="px-6 py-6">
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-black px-1.5 py-0.5 rounded bg-gray-800 text-white uppercase">${task.platform}</span>
-                            <div class="text-sm font-bold">${task.title} ${isUrgent ? '🔥' : ''}</div>
-                        </div>
-                        <div class="text-[10px] text-gray-400 mt-2">📅 截止: ${task.deadline ? new Date(task.deadline).toLocaleDateString() : '长期'}</div>
+                        <span class="px-3 py-1 text-xs font-bold rounded-full border ${statusStyle}">
+                            ${task.status} ${task.is_urgent ? '🔥' : ''}
+                        </span>
                     </td>
-                    <td class="px-6 py-6 text-center">
-                        <select onchange="updateStatus(${task.id}, this.value)" class="text-xs border-gray-200 rounded-lg p-1">
+                    <td class="px-6 py-6">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-gray-800 text-white uppercase">${task.platform}</span>
+                            <div class="text-sm font-bold text-gray-900">${task.title}</div>
+                        </div>
+                        <div class="text-xs text-gray-500 mb-2">${task.description || ''}</div>
+                        <div class="text-[10px] ${deadlineClass}">${deadlineHtml}</div>
+                    </td>
+                    <td class="px-6 py-6 text-center space-y-2">
+                        <select onchange="updateStatus(${task.id}, this.value)" class="w-full text-xs font-bold border-gray-200 rounded-lg p-1.5 focus:ring-orange-500 outline-none">
                             <option value="待处理" ${task.status === '待处理' ? 'selected' : ''}>待处理</option>
                             <option value="进行中" ${task.status === '进行中' ? 'selected' : ''}>进行中</option>
                             <option value="已完成" ${task.status === '已完成' ? 'selected' : ''}>已完成</option>
                         </select>
+                        <button onclick="confirmDelete(${task.id})" class="text-[10px] text-gray-400 hover:text-red-600 underline block w-full">删除该任务</button>
                     </td>
                 `;
                 list.appendChild(row);
             });
         }
 
+        // 更新状态
         async function updateStatus(id, newStatus) {
             await fetchWithAuth(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, { method: 'PUT' });
             fetchTasks();
+        }
+
+        // 删除任务
+        async function confirmDelete(id) {
+            if (confirm("爷爷，确定要彻底删除这个任务吗？删除后就找不回来咯。")) {
+                const response = await fetchWithAuth(`${API_BASE}/tasks/${id}`, { method: 'DELETE' });
+                if (response && response.ok) {
+                    fetchTasks();
+                }
+            }
         }
 
         function logout() {
