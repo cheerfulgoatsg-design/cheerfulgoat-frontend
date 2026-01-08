@@ -115,6 +115,30 @@
     </div>
 
     <script>
+        // --- 守门员逻辑：如果没有证件，就赶回登录页 ---
+const token = localStorage.getItem('cheerful_goat_token');
+if (!token && !window.location.href.includes('login.html')) {
+    window.location.href = 'login.html';
+}
+
+// 修改原有的 fetch 逻辑，每次去拿数据都必须带上证件
+async function fetchWithAuth(url, options = {}) {
+    const token = localStorage.getItem('cheerful_goat_token');
+    options.headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${token}`
+    };
+    const response = await fetch(url, options);
+    if (response.status === 401) {
+        // 证件过期了，重新登录
+        localStorage.removeItem('cheerful_goat_token');
+        window.location.href = 'login.html';
+    }
+    return response;
+}
+
+// 爷爷，请注意：您需要把后面代码里所有的 fetch 改成 fetchWithAuth
+// 比如：await fetch(`${API_BASE}/tasks/`) 改成 await fetchWithAuth(`${API_BASE}/tasks/`)
         const API_BASE = "https://cheerfulgoat-task-system.onrender.com";
         let allTasks = [];
 
