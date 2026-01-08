@@ -6,107 +6,93 @@
     <title>CheerfulGoat 跨境任务管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 这里加了一点点小魔法，让页面滚动更顺滑 */
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .orange-shadow { shadow-color: rgba(249, 115, 22, 0.1); }
     </style>
 </head>
 <body class="bg-orange-50/30 min-h-screen p-4 md:p-8 text-gray-800">
+    <script>
+        // 【第一步：保安检查】一进门先看有没有“通行证”
+        const token = localStorage.getItem('cheerful_goat_token');
+        if (!token) {
+            // 没证件，立刻扭送到登录页
+            window.location.href = 'login.html';
+        }
+    </script>
+
     <div class="max-w-6xl mx-auto">
-        
         <div class="flex flex-col items-center mb-10">
             <div class="bg-white p-4 rounded-full shadow-lg mb-4">
                 <img src="WechatIMG473.jpg" alt="Logo" class="h-16 w-auto">
             </div>
             <h1 class="text-3xl font-black text-gray-900 tracking-tight">CheerfulGoat</h1>
             <p class="text-orange-600 font-medium mt-1">跨境业务任务管理 · 专业版</p>
+            <button onclick="logout()" class="mt-4 text-xs text-gray-400 hover:text-orange-600 underline">退出系统</button>
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
             <div class="lg:col-span-1">
                 <div class="bg-white p-6 rounded-2xl shadow-xl border border-orange-100 sticky top-8">
-                    <div class="flex items-center mb-6">
-                        <span class="bg-orange-500 text-white p-1.5 rounded-lg mr-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        </span>
-                        <h2 class="text-xl font-bold">发布新任务</h2>
-                    </div>
-                    
+                    <h2 class="text-xl font-bold mb-6 flex items-center">
+                        <span class="bg-orange-500 text-white p-1.5 rounded-lg mr-2">＋</span>发布新任务
+                    </h2>
                     <form id="taskForm" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">任务标题</label>
-                            <input type="text" id="title" placeholder="输入任务名称..." required class="w-full border-gray-200 bg-gray-50 rounded-xl p-3 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">任务标题</label>
+                            <input type="text" id="title" required class="w-full border-gray-200 bg-gray-50 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-500">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">平台</label>
-                                <select id="platform" class="w-full border-gray-200 bg-gray-50 rounded-xl p-3 focus:ring-2 focus:ring-orange-500 outline-none">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">平台</label>
+                                <select id="platform" class="w-full border-gray-200 bg-gray-50 rounded-xl p-3 outline-none">
                                     <option>亚马逊</option><option>独立站</option><option>虾皮</option>
                                     <option>TikTok</option><option>B端</option><option>杂项</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">截止日期</label>
-                                <input type="date" id="deadline" class="w-full border-gray-200 bg-gray-50 rounded-xl p-3 focus:ring-2 focus:ring-orange-500 outline-none">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">截止日期</label>
+                                <input type="date" id="deadline" class="w-full border-gray-200 bg-gray-50 rounded-xl p-3 outline-none">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">任务描述</label>
-                            <textarea id="description" rows="3" placeholder="填写具体要求..." class="w-full border-gray-200 bg-gray-50 rounded-xl p-3 focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">描述</label>
+                            <textarea id="description" rows="3" class="w-full border-gray-200 bg-gray-50 rounded-xl p-3 outline-none"></textarea>
                         </div>
                         <div class="flex items-center p-3 bg-orange-50 rounded-xl">
-                            <input type="checkbox" id="is_urgent" class="h-5 w-5 text-orange-600 border-gray-300 rounded-md focus:ring-orange-500">
-                            <label class="ml-3 text-sm text-orange-700 font-bold italic">设为紧急处理 🔥</label>
+                            <input type="checkbox" id="is_urgent" class="h-5 w-5 text-orange-600 rounded">
+                            <label class="ml-3 text-sm text-orange-700 font-bold italic">紧急处理 🔥</label>
                         </div>
-                        <button type="submit" class="w-full bg-orange-500 text-white font-bold py-4 rounded-xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 transform hover:-translate-y-0.5 active:translate-y-0">
-                            确认提交任务
-                        </button>
+                        <button type="submit" class="w-full bg-orange-500 text-white font-bold py-4 rounded-xl hover:bg-orange-600 shadow-lg shadow-orange-200 transition-all">确认提交</button>
                     </form>
                     <div id="message" class="mt-4 text-center hidden p-3 rounded-xl font-bold"></div>
                 </div>
             </div>
 
             <div class="lg:col-span-2 space-y-6">
-                
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-wrap gap-4 items-center">
-                    <div class="relative flex-1 min-w-[240px]">
-                        <span class="absolute left-3 top-3 text-gray-400">🔍</span>
-                        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="搜索任务标题..." 
-                               class="w-full pl-10 pr-4 py-2 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-orange-400 outline-none">
-                    </div>
-                    <select id="filterPlatform" onchange="applyFilters()" class="bg-gray-50 border-none rounded-xl px-4 py-2 text-sm font-medium outline-none focus:ring-2 focus:ring-orange-400">
+                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="🔍 搜索任务..." class="flex-1 min-w-[200px] bg-gray-50 border-none rounded-xl px-4 py-2 outline-none">
+                    <select id="filterPlatform" onchange="applyFilters()" class="bg-gray-50 border-none rounded-xl px-4 py-2 text-sm outline-none">
                         <option value="全部平台">全部平台</option>
                         <option>亚马逊</option><option>独立站</option><option>虾皮</option>
                         <option>TikTok</option><option>B端</option><option>杂项</option>
                     </select>
-                    <button onclick="fetchTasks()" class="p-2 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-colors">
-                        🔄 刷新
-                    </button>
+                    <button onclick="fetchTasks()" class="p-2 bg-orange-50 text-orange-600 rounded-xl">🔄 刷新</button>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <div class="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                        <h2 class="font-bold text-gray-700 flex items-center">
-                            <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
-                            任务实时看板
-                        </h2>
-                        <span id="taskCount" class="text-xs font-bold bg-white px-2 py-1 rounded-md border border-gray-200 text-gray-500">
-                            加载中...
-                        </span>
+                        <h2 class="font-bold text-gray-700">任务实时看板</h2>
+                        <span id="taskCount" class="text-xs font-bold text-gray-400">正在同步...</span>
                     </div>
-                    
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead class="bg-gray-50/50 text-left">
                                 <tr>
                                     <th class="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">状态</th>
-                                    <th class="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">任务详情</th>
+                                    <th class="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">详情</th>
                                     <th class="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest text-center">管理</th>
                                 </tr>
                             </thead>
-                            <tbody id="taskList" class="divide-y divide-gray-50">
-                                </tbody>
+                            <tbody id="taskList" class="divide-y divide-gray-50"></tbody>
                         </table>
                     </div>
                 </div>
@@ -115,36 +101,28 @@
     </div>
 
     <script>
-        // --- 守门员逻辑：如果没有证件，就赶回登录页 ---
-const token = localStorage.getItem('cheerful_goat_token');
-if (!token && !window.location.href.includes('login.html')) {
-    window.location.href = 'login.html';
-}
-
-// 修改原有的 fetch 逻辑，每次去拿数据都必须带上证件
-async function fetchWithAuth(url, options = {}) {
-    const token = localStorage.getItem('cheerful_goat_token');
-    options.headers = {
-        ...options.headers,
-        'Authorization': `Bearer ${token}`
-    };
-    const response = await fetch(url, options);
-    if (response.status === 401) {
-        // 证件过期了，重新登录
-        localStorage.removeItem('cheerful_goat_token');
-        window.location.href = 'login.html';
-    }
-    return response;
-}
-
-// 爷爷，请注意：您需要把后面代码里所有的 fetch 改成 fetchWithAuth
-// 比如：await fetch(`${API_BASE}/tasks/`) 改成 await fetchWithAuth(`${API_BASE}/tasks/`)
         const API_BASE = "https://cheerfulgoat-task-system.onrender.com";
         let allTasks = [];
 
+        // 【核心：带证件的搬运工】以后每次跟后台说话都要带上 Token
+        async function fetchWithAuth(url, options = {}) {
+            const token = localStorage.getItem('cheerful_goat_token');
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            };
+            const response = await fetch(url, options);
+            if (response.status === 401) {
+                // 如果后台说证件失效了，就踢回登录页
+                localStorage.removeItem('cheerful_goat_token');
+                window.location.href = 'login.html';
+                return;
+            }
+            return response;
+        }
+
         document.getElementById('taskForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const msgDiv = document.getElementById('message');
             const data = {
                 title: document.getElementById('title').value,
                 platform: document.getElementById('platform').value,
@@ -152,97 +130,73 @@ async function fetchWithAuth(url, options = {}) {
                 is_urgent: document.getElementById('is_urgent').checked,
                 deadline: document.getElementById('deadline').value || null
             };
-
-            try {
-                const response = await fetch(`${API_BASE}/tasks/`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                if (response.ok) {
-                    msgDiv.textContent = "✅ 任务已成功入库";
-                    msgDiv.className = "mt-4 text-center p-3 rounded-xl bg-green-50 text-green-700 block";
-                    document.getElementById('taskForm').reset();
-                    fetchTasks();
-                    setTimeout(() => msgDiv.classList.add('hidden'), 3000);
-                }
-            } catch (error) {
-                msgDiv.textContent = "❌ 提交失败，请重试";
-                msgDiv.className = "mt-4 text-center p-3 rounded-xl bg-red-50 text-red-700 block";
+            const response = await fetchWithAuth(`${API_BASE}/tasks/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (response && response.ok) {
+                document.getElementById('taskForm').reset();
+                fetchTasks();
             }
         });
 
         async function fetchTasks() {
-            try {
-                const response = await fetch(`${API_BASE}/tasks/`);
+            const response = await fetchWithAuth(`${API_BASE}/tasks/`);
+            if (response && response.ok) {
                 allTasks = await response.json();
                 document.getElementById('taskCount').textContent = `共计 ${allTasks.length} 个任务`;
                 applyFilters();
-            } catch (error) {
-                console.error('获取失败', error);
             }
         }
 
         function applyFilters() {
             const searchText = document.getElementById('searchInput').value.toLowerCase();
             const platformFilter = document.getElementById('filterPlatform').value;
-            
-            const filteredTasks = allTasks.filter(task => {
-                const matchesSearch = task.title.toLowerCase().includes(searchText);
-                const matchesPlatform = (platformFilter === '全部平台') || (task.platform === platformFilter);
-                return matchesSearch && matchesPlatform;
-            });
-
-            renderTaskList(filteredTasks);
+            const filtered = allTasks.filter(t => 
+                t.title.toLowerCase().includes(searchText) && 
+                (platformFilter === '全部平台' || t.platform === platformFilter)
+            );
+            renderTaskList(filtered);
         }
 
         function renderTaskList(tasks) {
-            const listElement = document.getElementById('taskList');
-            listElement.innerHTML = '';
-
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
             tasks.forEach(task => {
                 const row = document.createElement('tr');
-                row.className = "hover:bg-orange-50/20 transition-colors";
+                const isUrgent = task.is_urgent;
+                const statusStyle = task.status === '已完成' ? 'bg-gray-100 text-gray-400' : (isUrgent ? 'bg-red-50 text-red-600 animate-pulse border-red-100' : 'bg-orange-50 text-orange-600 border-orange-100');
                 
-                let statusStyle = "";
-                if (task.status === '已完成') statusStyle = "bg-gray-100 text-gray-500 border-gray-200";
-                else if (task.is_urgent) statusStyle = "bg-red-50 text-red-600 border-red-100 animate-pulse";
-                else statusStyle = "bg-orange-50 text-orange-600 border-orange-100";
-
-                const deadlineText = task.deadline ? new Date(task.deadline).toLocaleDateString() : '长期';
-                const deadlineColor = task.deadline && new Date(task.deadline) < new Date() ? 'text-red-500 font-bold' : 'text-gray-400';
-
                 row.innerHTML = `
-                    <td class="px-6 py-6">
-                        <span class="px-3 py-1 text-xs font-bold rounded-full border ${statusStyle}">
-                            ${task.status} ${task.is_urgent ? '🔥' : ''}
-                        </span>
-                    </td>
+                    <td class="px-6 py-6"><span class="px-3 py-1 text-xs font-bold rounded-full border ${statusStyle}">${task.status}</span></td>
                     <td class="px-6 py-6">
                         <div class="flex items-center gap-2">
                             <span class="text-[10px] font-black px-1.5 py-0.5 rounded bg-gray-800 text-white uppercase">${task.platform}</span>
-                            <div class="text-sm font-bold text-gray-900">${task.title}</div>
+                            <div class="text-sm font-bold">${task.title} ${isUrgent ? '🔥' : ''}</div>
                         </div>
-                        <div class="text-xs text-gray-400 mt-1">${task.description || '暂无详细描述'}</div>
-                        <div class="text-[10px] ${deadlineColor} mt-2 flex items-center">
-                            <span class="mr-1">📅</span> 截止: ${deadlineText}
-                        </div>
+                        <div class="text-[10px] text-gray-400 mt-2">📅 截止: ${task.deadline ? new Date(task.deadline).toLocaleDateString() : '长期'}</div>
                     </td>
                     <td class="px-6 py-6 text-center">
-                        <select onchange="updateStatus(${task.id}, this.value)" class="text-xs font-bold border-gray-200 rounded-lg p-1.5 focus:ring-orange-500 outline-none">
+                        <select onchange="updateStatus(${task.id}, this.value)" class="text-xs border-gray-200 rounded-lg p-1">
                             <option value="待处理" ${task.status === '待处理' ? 'selected' : ''}>待处理</option>
                             <option value="进行中" ${task.status === '进行中' ? 'selected' : ''}>进行中</option>
                             <option value="已完成" ${task.status === '已完成' ? 'selected' : ''}>已完成</option>
                         </select>
                     </td>
                 `;
-                listElement.appendChild(row);
+                list.appendChild(row);
             });
         }
 
         async function updateStatus(id, newStatus) {
-            await fetch(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, { method: 'PUT' });
+            await fetchWithAuth(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, { method: 'PUT' });
             fetchTasks();
+        }
+
+        function logout() {
+            localStorage.removeItem('cheerful_goat_token');
+            window.location.href = 'login.html';
         }
 
         fetchTasks();
