@@ -30,6 +30,11 @@
                             <option>杂项</option>
                         </select>
                     </div>
+                    <!-- 新增：截止日期选框 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">截止日期</label>
+                        <input type="date" id="deadline" class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">任务描述</label>
                         <textarea id="description" rows="3" placeholder="请填写具体要求..." class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-orange-500 focus:border-orange-500"></textarea>
@@ -56,7 +61,7 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">标题</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">任务详情</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">平台</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">管理</th>
                             </tr>
@@ -77,11 +82,14 @@
         document.getElementById('taskForm' ).addEventListener('submit', async (e) => {
             e.preventDefault();
             const msgDiv = document.getElementById('message');
+            
+            // 收集数据，包括新增的截止日期
             const data = {
                 title: document.getElementById('title').value,
                 platform: document.getElementById('platform').value,
                 description: document.getElementById('description').value,
-                is_urgent: document.getElementById('is_urgent').checked
+                is_urgent: document.getElementById('is_urgent').checked,
+                deadline: document.getElementById('deadline').value || null
             };
 
             try {
@@ -118,6 +126,10 @@
                     const row = document.createElement('tr');
                     const statusClass = task.status === '已完成' ? 'bg-gray-100 text-gray-600' : (task.is_urgent ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700');
                     
+                    // 格式化日期显示
+                    const deadlineText = task.deadline ? new Date(task.deadline).toLocaleDateString() : '未设置';
+                    const deadlineColor = task.deadline && new Date(task.deadline) < new Date() ? 'text-red-500 font-bold' : 'text-gray-500';
+
                     row.innerHTML = `
                         <td class="px-4 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
@@ -127,6 +139,7 @@
                         <td class="px-4 py-4">
                             <div class="text-sm font-medium text-gray-900">${task.title}</div>
                             <div class="text-xs text-gray-500">${task.description || ''}</div>
+                            <div class="text-xs ${deadlineColor} mt-1">📅 截止: ${deadlineText}</div>
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
                             ${task.platform}
