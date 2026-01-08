@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - CheerfulGoat 管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-orange-50 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 border border-orange-100">
+        <div class="text-center mb-8">
+            <img src="WechatIMG473.jpg" alt="Logo" class="h-16 mx-auto mb-4 bg-white rounded-full p-2 shadow-sm">
+            <h2 class="text-2xl font-black text-gray-800">欢迎回来</h2>
+            <p class="text-orange-600 text-sm font-medium">请输入您的管理员凭据</p>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">账号</label>
+                <input type="text" id="username" required class="w-full border-gray-100 bg-gray-50 rounded-xl p-4 focus:ring-2 focus:ring-orange-500 outline-none transition-all">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">密码</label>
+                <input type="password" id="password" required class="w-full border-gray-100 bg-gray-50 rounded-xl p-4 focus:ring-2 focus:ring-orange-500 outline-none transition-all">
+            </div>
+            <button type="submit" class="w-full bg-orange-500 text-white font-bold py-4 rounded-xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-200">
+                立即登录
+            </button>
+        </form>
+        <div id="errorMsg" class="mt-4 text-center text-red-500 text-sm font-bold hidden"></div>
+    </div>
+
+    <script>
+        const API_BASE = "https://cheerfulgoat-task-system.onrender.com";
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorMsg = document.getElementById('errorMsg');
+            const formData = new FormData();
+            formData.append('username', document.getElementById('username').value);
+            formData.append('password', document.getElementById('password').value);
+
+            try {
+                const response = await fetch(`${API_BASE}/token`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // 把“通行证”存进浏览器的保险柜里
+                    localStorage.setItem('cheerful_goat_token', data.access_token);
+                    // 登录成功，跳转到主页
+                    window.location.href = 'index.html';
+                } else {
+                    errorMsg.textContent = "❌ 账号或密码不对哦，爷爷再想想？";
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorMsg.textContent = "❌ 网络连接失败，请检查后台";
+                errorMsg.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
