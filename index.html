@@ -3,102 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CheerfulGoat 任务管理 · 终极修复版</title>
+    <title>CheerfulGoat 终极修复版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .delete-btn:hover { background-color: #dc2626 !important; color: white !important; }
+        /* 爷爷，如果上面的插件加载失败，下面这些代码会作为“保底”强制让页面变整齐 */
+        body { background-color: #fff7ed; font-family: sans-serif; padding: 20px; }
+        .logo-box { background: white; padding: 15px; border-radius: 999px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 10px; border: 2px solid #ffedd5; display: inline-block; }
+        
+        /* 强制限制 Logo 尺寸，防止它撑满屏幕 */
+        .logo-img { height: 60px !important; width: auto !important; display: block; margin: 0 auto; }
+        
+        .main-container { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.05); border: 1px solid #ffedd5; }
+        .left-side { flex: 1; min-width: 300px; }
+        .right-side { flex: 2; min-width: 400px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; color: #9ca3af; font-size: 12px; padding: 10px; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #f9fafb; vertical-align: middle; }
+        .btn-delete { color: #dc2626; background: #fef2f2; border: 1px solid #fee2e2; padding: 4px 8px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .btn-delete:hover { background: #dc2626; color: white; }
     </style>
 </head>
-<body class="bg-orange-50/30 min-h-screen p-4 md:p-8 text-gray-800">
+<body class="bg-orange-50/30">
     <script>
-        // 1. 登录保安
         const token = localStorage.getItem('cheerful_goat_token');
         if (!token) { window.location.href = 'login.html'; }
-        console.log("CheerfulGoat 系统已加载 - 版本 2026.01.08");
     </script>
 
-    <div class="max-w-6xl mx-auto pb-20">
-        <div class="flex flex-col items-center mb-10 text-center">
-            <div class="bg-white p-4 rounded-full shadow-lg mb-4 border-2 border-orange-100">
-                <img src="WechatIMG473.jpg" alt="Logo" class="h-16 w-auto">
+    <div class="max-w-6xl mx-auto">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div class="logo-box">
+                <img src="WechatIMG473.jpg" alt="Logo" class="logo-img">
             </div>
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">CheerfulGoat</h1>
-            <p class="text-orange-600 font-bold mt-1 text-xs tracking-widest uppercase">Task Master Center</p>
-            <button onclick="logout()" class="mt-4 text-xs text-gray-400 hover:text-orange-600 underline">安全登出系统</button>
+            <h1 style="font-size: 24px; font-weight: 900; margin: 5px 0;">CheerfulGoat</h1>
+            <p style="color: #ea580c; font-weight: bold; font-size: 12px;">跨境业务任务管理 · 终极修复版</p>
+            <button onclick="logout()" style="color: #9ca3af; text-decoration: underline; font-size: 12px; border: none; background: none; cursor: pointer;">安全登出</button>
         </div>
         
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-1">
-                <div class="bg-white p-6 rounded-3xl shadow-2xl border border-orange-100 sticky top-8">
-                    <h2 class="text-xl font-bold mb-6 flex items-center text-orange-600">
-                        <span class="bg-orange-500 text-white p-2 rounded-xl mr-3 text-lg">➕</span>新增业务任务
-                    </h2>
-                    <form id="taskForm" class="space-y-4">
-                        <div>
-                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">任务名称</label>
-                            <input type="text" id="title" required placeholder="如：虾皮大促活动" class="w-full border-gray-100 bg-gray-50 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-orange-500 transition-all">
+        <div class="main-container">
+            <div class="left-side">
+                <div class="card">
+                    <h2 style="font-weight: bold; margin-bottom: 20px; color: #ea580c;">📝 新增任务</h2>
+                    <form id="taskForm" style="display: flex; flex-direction: column; gap: 15px;">
+                        <input type="text" id="title" required placeholder="任务名称" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #f9fafb;">
+                        <select id="platform" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #f9fafb;">
+                            <option>亚马逊</option><option>独立站</option><option>虾皮</option>
+                            <option>TikTok</option><option>B端</option><option>杂项</option>
+                        </select>
+                        <input type="date" id="deadline" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #f9fafb;">
+                        <div style="display: flex; align-items: center; padding: 10px; background: #fef2f2; border-radius: 10px;">
+                            <input type="checkbox" id="is_urgent" style="width: 20px; height: 20px;">
+                            <label style="margin-left: 10px; color: #b91c1c; font-weight: bold;">紧急任务 🔥</label>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">所属平台</label>
-                                <select id="platform" class="w-full border-gray-100 bg-gray-50 rounded-2xl p-4 outline-none">
-                                    <option>亚马逊</option><option>独立站</option><option>虾皮</option>
-                                    <option>TikTok</option><option>B端</option><option>杂项</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">截止日期</label>
-                                <input type="date" id="deadline" class="w-full border-gray-100 bg-gray-50 rounded-2xl p-4 outline-none text-xs">
-                            </div>
-                        </div>
-                        <div class="flex items-center p-4 bg-red-50 rounded-2xl border border-red-100 mb-4">
-                            <input type="checkbox" id="is_urgent" class="h-6 w-6 text-red-600 rounded-lg">
-                            <label class="ml-3 text-sm text-red-700 font-black italic">标记为特急任务 🔥</label>
-                        </div>
-                        <button type="submit" class="w-full bg-orange-500 text-white font-black py-5 rounded-2xl hover:bg-orange-600 shadow-xl shadow-orange-200 transition-all text-lg tracking-widest">
-                            提交到云端
-                        </button>
+                        <button type="submit" style="background: #f97316; color: white; font-weight: bold; padding: 15px; border: none; border-radius: 10px; cursor: pointer;">提交任务</button>
                     </form>
                 </div>
             </div>
 
-            <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white p-4 rounded-3xl shadow-md border border-gray-100 flex flex-wrap gap-4 items-center">
-                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="🔍 快速搜索任务标题..." class="flex-1 min-w-[200px] bg-gray-100 border-none rounded-2xl px-6 py-3 outline-none focus:ring-2 focus:ring-orange-400">
-                    <select id="filterPlatform" onchange="applyFilters()" class="bg-gray-100 border-none rounded-2xl px-6 py-3 text-sm font-bold outline-none">
-                        <option value="全部平台">全部平台</option>
-                        <option>亚马逊</option><option>独立站</option><option>虾皮</option>
-                        <option>TikTok</option><option>B端</option><option>杂项</option>
-                    </select>
-                </div>
-
-                <div class="bg-white rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden">
-                    <div class="bg-gray-50 px-8 py-6 border-b border-gray-100 flex justify-between items-center">
-                        <h2 class="font-black text-gray-800 text-lg flex items-center">
-                            <span class="w-3 h-3 bg-orange-500 rounded-full mr-3 animate-pulse"></span>任务看板
-                        </h2>
-                        <div id="taskCount" class="text-[10px] font-black text-orange-600 bg-white px-3 py-1.5 rounded-full shadow-sm border border-orange-100 tracking-tighter">同步中...</div>
+            <div class="right-side">
+                <div class="card" style="padding: 0;">
+                    <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="font-weight: bold;">📊 实时看板</h2>
+                        <span id="taskCount" style="font-size: 12px; color: #f97316; background: #fff7ed; padding: 4px 10px; border-radius: 20px;">加载中...</span>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full border-collapse">
-                            <thead class="bg-gray-50/80 text-left border-b border-gray-100">
-                                <tr>
-                                    <th class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">状态</th>
-                                    <th class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">任务明细</th>
-                                    <th class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">操作管理</th>
-                                </tr>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr><th>状态</th><th>明细</th><th style="text-align:center;">操作</th></tr>
                             </thead>
-                            <tbody id="taskList" class="divide-y divide-gray-50">
-                                </tbody>
+                            <tbody id="taskList"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="mt-20 text-center">
-            <p class="text-[10px] text-gray-300 font-bold uppercase tracking-[0.3em]">Version: 2026.01.08.FINAL_FIX · 增删增强版</p>
+        <div style="text-align: center; margin-top: 50px; color: #ccc; font-size: 10px; letter-spacing: 2px;">
+            VERSION: 2026.01.08.FINAL_STABLE
         </div>
     </div>
 
@@ -134,16 +115,9 @@
             const res = await fetchWithAuth(`${API_BASE}/tasks/`);
             if (res && res.ok) {
                 allTasks = await res.json();
-                document.getElementById('taskCount').textContent = `当前共有 ${allTasks.length} 项任务`;
-                applyFilters();
+                document.getElementById('taskCount').textContent = `共有 ${allTasks.length} 项任务`;
+                renderTaskList(allTasks);
             }
-        }
-
-        function applyFilters() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const platform = document.getElementById('filterPlatform').value;
-            const filtered = allTasks.filter(t => t.title.toLowerCase().includes(search) && (platform === '全部平台' || t.platform === platform));
-            renderTaskList(filtered);
         }
 
         function renderTaskList(tasks) {
@@ -153,58 +127,25 @@
 
             tasks.forEach(task => {
                 const row = document.createElement('tr');
-                row.className = "hover:bg-orange-50/10 transition-colors group";
+                const deadlineStr = task.deadline ? new Date(task.deadline).toLocaleDateString() : '长期';
+                const statusColor = task.status === '已完成' ? '#9ca3af' : (task.is_urgent ? '#dc2626' : '#f97316');
                 
-                let deadlineHtml = '长期任务';
-                let deadlineClass = 'text-gray-400';
-                if (task.deadline) {
-                    const diffHours = (new Date(task.deadline) - new Date()) / 3600000;
-                    if (diffHours < 0) { deadlineHtml = `🚫 已逾期`; deadlineClass = 'text-red-600 font-black'; }
-                    else if (diffHours < 24) { deadlineHtml = `🔥 明天到期`; deadlineClass = 'text-red-500 font-black animate-pulse'; }
-                    else { deadlineHtml = `📅 ${new Date(task.deadline).toLocaleDateString()}`; }
-                }
-
-                const statusBg = task.status === '已完成' ? 'bg-gray-100 text-gray-500' : (task.is_urgent ? 'bg-red-600 text-white' : 'bg-orange-500 text-white');
-
                 row.innerHTML = `
-                    <td class="px-8 py-8">
-                        <span class="px-3 py-1.5 text-[9px] font-black rounded-lg ${statusBg}">
-                            ${task.status}
-                        </span>
+                    <td><span style="font-size:10px; font-weight:bold; color:white; background:${statusColor}; padding:2px 8px; border-radius:5px;">${task.status}</span></td>
+                    <td>
+                        <div style="font-size:14px; font-weight:bold;">[${task.platform}] ${task.title}</div>
+                        <div style="font-size:10px; color:#9ca3af;">截止: ${deadlineStr}</div>
                     </td>
-                    <td class="px-8 py-8">
-                        <div class="flex items-center gap-2 mb-2 text-sm font-bold text-gray-900 leading-tight">
-                            <span class="text-[8px] bg-black text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">${task.platform}</span>
-                            ${task.title}
-                        </div>
-                        <div class="text-[10px] ${deadlineClass} flex items-center px-2 py-0.5 bg-gray-50 w-fit rounded border border-gray-100">
-                            ${deadlineHtml}
-                        </div>
-                    </td>
-                    <td class="px-8 py-8 text-center">
-                        <div class="flex flex-col gap-2 max-w-[120px] mx-auto">
-                            <select onchange="updateStatus(${task.id}, this.value)" class="text-[10px] font-bold border-gray-200 rounded-xl p-2 outline-none focus:ring-2 focus:ring-orange-500">
-                                <option value="待处理" ${task.status === '待处理' ? 'selected' : ''}>待处理</option>
-                                <option value="进行中" ${task.status === '进行中' ? 'selected' : ''}>进行中</option>
-                                <option value="已完成" ${task.status === '已完成' ? 'selected' : ''}>已完成</option>
-                            </select>
-                            <button onclick="confirmDelete(${task.id})" class="delete-btn w-full py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-[10px] font-black transition-all">
-                                🗑️ 彻底删除
-                            </button>
-                        </div>
+                    <td style="text-align:center;">
+                        <button onclick="confirmDelete(${task.id})" class="btn-delete">🗑️ 删除</button>
                     </td>
                 `;
                 list.appendChild(row);
             });
         }
 
-        async function updateStatus(id, newStatus) {
-            await fetchWithAuth(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, { method: 'PUT' });
-            fetchTasks();
-        }
-
         async function confirmDelete(id) {
-            if (confirm("⚠️ 爷爷请确认：您真的要永久删除这个任务吗？")) {
+            if (confirm("⚠️ 确定要永久删除吗？")) {
                 const res = await fetchWithAuth(`${API_BASE}/tasks/${id}`, { method: 'DELETE' });
                 if (res && res.ok) fetchTasks();
             }
