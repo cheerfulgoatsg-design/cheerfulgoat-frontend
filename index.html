@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CheerfulGoat 终极修复版</title>
+    <title>CheerfulGoat 终极全功能版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 爷爷，如果上面的插件加载失败，下面这些代码会作为“保底”强制让页面变整齐 */
+        /* 强力保底样式 */
         body { background-color: #fff7ed; font-family: sans-serif; padding: 20px; }
         .logo-box { background: white; padding: 15px; border-radius: 999px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 10px; border: 2px solid #ffedd5; display: inline-block; }
-        
-        /* 强制限制 Logo 尺寸，防止它撑满屏幕 */
         .logo-img { height: 60px !important; width: auto !important; display: block; margin: 0 auto; }
-        
         .main-container { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 20px; }
         .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.05); border: 1px solid #ffedd5; }
         .left-side { flex: 1; min-width: 300px; }
         .right-side { flex: 2; min-width: 400px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; color: #9ca3af; font-size: 12px; padding: 10px; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: #9ca3af; font-size: 11px; padding: 10px; text-transform: uppercase; }
         td { padding: 15px; border-bottom: 1px solid #f9fafb; vertical-align: middle; }
-        .btn-delete { color: #dc2626; background: #fef2f2; border: 1px solid #fee2e2; padding: 4px 8px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        
+        /* 状态下拉框样式 */
+        .status-select { width: 100%; padding: 6px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 11px; font-weight: bold; background: #f9fafb; margin-bottom: 8px; outline: none; }
+        .status-select:focus { border-color: #f97316; }
+        
+        /* 删除按钮样式 */
+        .btn-delete { width: 100%; color: #dc2626; background: #fef2f2; border: 1px solid #fee2e2; padding: 6px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; transition: all 0.2s; }
         .btn-delete:hover { background: #dc2626; color: white; }
     </style>
 </head>
@@ -36,14 +39,14 @@
                 <img src="WechatIMG473.jpg" alt="Logo" class="logo-img">
             </div>
             <h1 style="font-size: 24px; font-weight: 900; margin: 5px 0;">CheerfulGoat</h1>
-            <p style="color: #ea580c; font-weight: bold; font-size: 12px;">跨境业务任务管理 · 终极修复版</p>
+            <p style="color: #ea580c; font-weight: bold; font-size: 12px;">跨境业务任务管理 · 功能全开版</p>
             <button onclick="logout()" style="color: #9ca3af; text-decoration: underline; font-size: 12px; border: none; background: none; cursor: pointer;">安全登出</button>
         </div>
         
         <div class="main-container">
             <div class="left-side">
                 <div class="card">
-                    <h2 style="font-weight: bold; margin-bottom: 20px; color: #ea580c;">📝 新增任务</h2>
+                    <h2 style="font-weight: bold; margin-bottom: 20px; color: #ea580c; display: flex; align-items: center;">📝 新增任务</h2>
                     <form id="taskForm" style="display: flex; flex-direction: column; gap: 15px;">
                         <input type="text" id="title" required placeholder="任务名称" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #f9fafb;">
                         <select id="platform" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #f9fafb;">
@@ -51,11 +54,11 @@
                             <option>TikTok</option><option>B端</option><option>杂项</option>
                         </select>
                         <input type="date" id="deadline" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #f9fafb;">
-                        <div style="display: flex; align-items: center; padding: 10px; background: #fef2f2; border-radius: 10px;">
+                        <div style="display: flex; align-items: center; padding: 12px; background: #fef2f2; border-radius: 10px; border: 1px solid #fee2e2;">
                             <input type="checkbox" id="is_urgent" style="width: 20px; height: 20px;">
-                            <label style="margin-left: 10px; color: #b91c1c; font-weight: bold;">紧急任务 🔥</label>
+                            <label style="margin-left: 10px; color: #b91c1c; font-weight: bold;">设为紧急任务 🔥</label>
                         </div>
-                        <button type="submit" style="background: #f97316; color: white; font-weight: bold; padding: 15px; border: none; border-radius: 10px; cursor: pointer;">提交任务</button>
+                        <button type="submit" style="background: #f97316; color: white; font-weight: bold; padding: 15px; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 6px rgba(249, 115, 22, 0.2);">提交任务</button>
                     </form>
                 </div>
             </div>
@@ -63,13 +66,17 @@
             <div class="right-side">
                 <div class="card" style="padding: 0;">
                     <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-                        <h2 style="font-weight: bold;">📊 实时看板</h2>
-                        <span id="taskCount" style="font-size: 12px; color: #f97316; background: #fff7ed; padding: 4px 10px; border-radius: 20px;">加载中...</span>
+                        <h2 style="font-weight: bold; display: flex; align-items: center;">📊 实时看板</h2>
+                        <span id="taskCount" style="font-size: 11px; font-weight: bold; color: #f97316; background: #fff7ed; padding: 4px 12px; border-radius: 20px; border: 1px solid #ffedd5;">加载中...</span>
                     </div>
                     <div style="overflow-x: auto;">
                         <table>
                             <thead>
-                                <tr><th>状态</th><th>明细</th><th style="text-align:center;">操作</th></tr>
+                                <tr>
+                                    <th style="width: 80px;">状态</th>
+                                    <th>明细</th>
+                                    <th style="width: 100px; text-align: center;">操作</th>
+                                </tr>
                             </thead>
                             <tbody id="taskList"></tbody>
                         </table>
@@ -78,8 +85,8 @@
             </div>
         </div>
 
-        <div style="text-align: center; margin-top: 50px; color: #ccc; font-size: 10px; letter-spacing: 2px;">
-            VERSION: 2026.01.08.FINAL_STABLE
+        <div style="text-align: center; margin-top: 50px; color: #cbd5e1; font-size: 10px; letter-spacing: 2px; font-weight: bold;">
+            VERSION: 2026.01.08.FULL_FUNCTION
         </div>
     </div>
 
@@ -123,25 +130,52 @@
         function renderTaskList(tasks) {
             const list = document.getElementById('taskList');
             list.innerHTML = '';
+            
+            // 排序：紧急的在前
             tasks.sort((a, b) => b.is_urgent - a.is_urgent);
 
             tasks.forEach(task => {
                 const row = document.createElement('tr');
-                const deadlineStr = task.deadline ? new Date(task.deadline).toLocaleDateString() : '长期';
+                const dDate = task.deadline ? new Date(task.deadline) : null;
+                const deadlineStr = dDate ? dDate.toLocaleDateString() : '长期';
+                
+                // 状态标签颜色
                 const statusColor = task.status === '已完成' ? '#9ca3af' : (task.is_urgent ? '#dc2626' : '#f97316');
                 
+                // 构造下拉框的 HTML
+                const statusSelectHtml = `
+                    <select onchange="updateStatus(${task.id}, this.value)" class="status-select">
+                        <option value="待处理" ${task.status === '待处理' ? 'selected' : ''}>待处理</option>
+                        <option value="进行中" ${task.status === '进行中' ? 'selected' : ''}>进行中</option>
+                        <option value="已完成" ${task.status === '已完成' ? 'selected' : ''}>已完成</option>
+                    </select>
+                `;
+
                 row.innerHTML = `
-                    <td><span style="font-size:10px; font-weight:bold; color:white; background:${statusColor}; padding:2px 8px; border-radius:5px;">${task.status}</span></td>
                     <td>
-                        <div style="font-size:14px; font-weight:bold;">[${task.platform}] ${task.title}</div>
-                        <div style="font-size:10px; color:#9ca3af;">截止: ${deadlineStr}</div>
+                        <span style="font-size:10px; font-weight:bold; color:white; background:${statusColor}; padding:3px 8px; border-radius:6px; white-space:nowrap;">
+                            ${task.status} ${task.is_urgent ? '🔥' : ''}
+                        </span>
                     </td>
-                    <td style="text-align:center;">
-                        <button onclick="confirmDelete(${task.id})" class="btn-delete">🗑️ 删除</button>
+                    <td>
+                        <div style="font-size:14px; font-weight:bold; color: #1f2937; margin-bottom: 4px;">[${task.platform}] ${task.title}</div>
+                        <div style="font-size:11px; color:#9ca3af; display: flex; align-items: center;">📅 截止: ${deadlineStr}</div>
+                    </td>
+                    <td>
+                        <div style="display: flex; flex-direction: column;">
+                            ${statusSelectHtml}
+                            <button onclick="confirmDelete(${task.id})" class="btn-delete">🗑️ 删除</button>
+                        </div>
                     </td>
                 `;
                 list.appendChild(row);
             });
+        }
+
+        async function updateStatus(id, newStatus) {
+            // 注意：这里调用的是您后端更新状态的 API
+            await fetchWithAuth(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, { method: 'PUT' });
+            fetchTasks();
         }
 
         async function confirmDelete(id) {
