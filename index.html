@@ -3,50 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CheerfulGoat 任务管理系统</title>
+    <title>CheerfulGoat 跨境任务管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 md:p-8">
     <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">🐐 CheerfulGoat 任务管理系统</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">🐐 CheerfulGoat 跨境任务管理</h1>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- 左侧：提交表单 -->
-            <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md h-fit">
-                <h2 class="text-xl font-semibold mb-4 text-blue-600">发布新任务</h2>
+            <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md h-fit border-t-4 border-orange-500">
+                <h2 class="text-xl font-semibold mb-4 text-orange-600">发布新任务</h2>
                 <form id="taskForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">任务标题</label>
-                        <input type="text" id="title" required class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <input type="text" id="title" placeholder="例如：亚马逊新品上架" required class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-orange-500 focus:border-orange-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">平台类型</label>
-                        <select id="platform" class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm">
-                            <option>小红书</option>
-                            <option>抖音</option>
-                            <option>快手</option>
-                            <option>视频号</option>
-                            <option>其他</option>
+                        <label class="block text-sm font-medium text-gray-700">业务平台</label>
+                        <select id="platform" class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                            <option>亚马逊</option>
+                            <option>独立站</option>
+                            <option>虾皮</option>
+                            <option>TikTok</option>
+                            <option>B端</option>
+                            <option>杂项</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">任务描述</label>
-                        <textarea id="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm"></textarea>
+                        <textarea id="description" rows="3" placeholder="请填写具体要求..." class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-orange-500 focus:border-orange-500"></textarea>
                     </div>
                     <div class="flex items-center">
-                        <input type="checkbox" id="is_urgent" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        <input type="checkbox" id="is_urgent" class="h-4 w-4 text-orange-600 border-gray-300 rounded">
                         <label class="ml-2 block text-sm text-red-600 font-bold">是否紧急 🔥</label>
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">提交任务</button>
+                    <button type="submit" class="w-full bg-orange-500 text-white font-bold py-2 px-4 rounded-md hover:bg-orange-600 transition duration-200 shadow-lg">提交任务</button>
                 </form>
                 <div id="message" class="mt-4 text-center hidden p-2 rounded"></div>
             </div>
 
             <!-- 右侧：任务列表 -->
-            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md border-t-4 border-green-500">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold text-green-600">任务看板</h2>
-                    <button onclick="fetchTasks( )" class="text-sm bg-gray-100 hover:bg-gray-200 py-1 px-3 rounded border">刷新列表</button>
+                    <h2 class="text-xl font-semibold text-green-600">任务实时看板</h2>
+                    <button onclick="fetchTasks( )" class="text-sm bg-gray-100 hover:bg-gray-200 py-1 px-3 rounded border flex items-center">
+                        <span class="mr-1">🔄</span> 刷新列表
+                    </button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -55,7 +58,7 @@
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">标题</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">平台</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">管理</th>
                             </tr>
                         </thead>
                         <tbody id="taskList" class="bg-white divide-y divide-gray-200">
@@ -89,10 +92,10 @@
                 });
 
                 if (response.ok) {
-                    msgDiv.textContent = "✅ 提交成功！";
+                    msgDiv.textContent = "✅ 任务已成功送达！";
                     msgDiv.className = "mt-4 text-center p-2 rounded bg-green-100 text-green-700";
                     document.getElementById('taskForm').reset();
-                    fetchTasks(); // 提交后刷新列表
+                    fetchTasks();
                 } else {
                     throw new Error('提交失败');
                 }
@@ -125,11 +128,11 @@
                             <div class="text-sm font-medium text-gray-900">${task.title}</div>
                             <div class="text-xs text-gray-500">${task.description || ''}</div>
                         </td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
                             ${task.platform}
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                            <select onchange="updateStatus(${task.id}, this.value)" class="border rounded text-xs p-1">
+                            <select onchange="updateStatus(${task.id}, this.value)" class="border rounded text-xs p-1 focus:ring-orange-500">
                                 <option value="待处理" ${task.status === '待处理' ? 'selected' : ''}>待处理</option>
                                 <option value="进行中" ${task.status === '进行中' ? 'selected' : ''}>进行中</option>
                                 <option value="已完成" ${task.status === '已完成' ? 'selected' : ''}>已完成</option>
@@ -143,19 +146,17 @@
             }
         }
 
-        // 更新任务状态
         async function updateStatus(id, newStatus) {
             try {
                 await fetch(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, {
                     method: 'PUT'
                 });
-                fetchTasks(); // 更新后刷新
+                fetchTasks();
             } catch (error) {
                 alert('更新状态失败');
             }
         }
 
-        // 页面加载时自动获取一次列表
         fetchTasks();
     </script>
 </body>
