@@ -9,12 +9,11 @@
 <body class="bg-gray-50 min-h-screen p-4 md:p-8">
     <div class="max-w-6xl mx-auto">
         <div class="text-center mb-8">
-    <img src="WechatIMG473.jpg" alt="Logo" class="h-20 mx-auto mb-2">
-    <h1 class="text-3xl font-bold text-gray-800">CheerfulGoat 跨境任务管理</h1>
-</div>
+            <img src="WechatIMG473.jpg" alt="Logo" class="h-20 mx-auto mb-2">
+            <h1 class="text-3xl font-bold text-gray-800">🐐 CheerfulGoat 跨境任务管理</h1>
+        </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- 左侧：提交表单 -->
             <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md h-fit border-t-4 border-orange-500">
                 <h2 class="text-xl font-semibold mb-4 text-orange-600">发布新任务</h2>
                 <form id="taskForm" class="space-y-4">
@@ -33,7 +32,6 @@
                             <option>杂项</option>
                         </select>
                     </div>
-                    <!-- 新增：截止日期选框 -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700">截止日期</label>
                         <input type="date" id="deadline" class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-orange-500 focus:border-orange-500">
@@ -51,27 +49,44 @@
                 <div id="message" class="mt-4 text-center hidden p-2 rounded"></div>
             </div>
 
-            <!-- 右侧：任务列表 -->
             <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md border-t-4 border-green-500">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold text-green-600">任务实时看板</h2>
-                    <button onclick="fetchTasks( )" class="text-sm bg-gray-100 hover:bg-gray-200 py-1 px-3 rounded border flex items-center">
-                        <span class="mr-1">🔄</span> 刷新列表
+                    <button onclick="fetchTasks()" class="text-sm bg-gray-100 hover:bg-gray-200 py-1 px-3 rounded border flex items-center">
+                        <span class="mr-1">🔄</span> 刷新
                     </button>
                 </div>
+
+                <div class="flex flex-wrap gap-4 mb-4 items-center bg-gray-50 p-3 rounded-lg">
+                    <div class="flex-1 min-w-[200px]">
+                        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="🔍 输入标题搜索..." 
+                               class="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-green-500">
+                    </div>
+                    <div class="w-40">
+                        <select id="filterPlatform" onchange="applyFilters()" class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                            <option value="全部平台">全部平台</option>
+                            <option>亚马逊</option>
+                            <option>独立站</option>
+                            <option>虾皮</option>
+                            <option>TikTok</option>
+                            <option>B端</option>
+                            <option>杂项</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">任务详情</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">详情</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">平台</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">管理</th>
                             </tr>
                         </thead>
                         <tbody id="taskList" class="bg-white divide-y divide-gray-200">
-                            <!-- 任务将在这里动态加载 -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -80,13 +95,12 @@
 
     <script>
         const API_BASE = "https://cheerfulgoat-task-system.onrender.com";
+        let allTasks = []; // 存放所有任务的仓库
 
-        // 提交任务
-        document.getElementById('taskForm' ).addEventListener('submit', async (e) => {
+        // 提交新任务
+        document.getElementById('taskForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const msgDiv = document.getElementById('message');
-            
-            // 收集数据，包括新增的截止日期
             const data = {
                 title: document.getElementById('title').value,
                 platform: document.getElementById('platform').value,
@@ -101,76 +115,83 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-
                 if (response.ok) {
-                    msgDiv.textContent = "✅ 任务已成功送达！";
+                    msgDiv.textContent = "✅ 提交成功！";
                     msgDiv.className = "mt-4 text-center p-2 rounded bg-green-100 text-green-700";
                     document.getElementById('taskForm').reset();
                     fetchTasks();
-                } else {
-                    throw new Error('提交失败');
                 }
             } catch (error) {
-                msgDiv.textContent = "❌ 错误: " + error.message;
+                msgDiv.textContent = "❌ 提交出错";
                 msgDiv.className = "mt-4 text-center p-2 rounded bg-red-100 text-red-700";
             }
             msgDiv.classList.remove('hidden');
         });
 
-        // 获取并显示任务列表
+        // 获取任务
         async function fetchTasks() {
             try {
                 const response = await fetch(`${API_BASE}/tasks/`);
-                const tasks = await response.json();
-                const listElement = document.getElementById('taskList');
-                listElement.innerHTML = '';
-
-                tasks.forEach(task => {
-                    const row = document.createElement('tr');
-                    const statusClass = task.status === '已完成' ? 'bg-gray-100 text-gray-600' : (task.is_urgent ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700');
-                    
-                    // 格式化日期显示
-                    const deadlineText = task.deadline ? new Date(task.deadline).toLocaleDateString() : '未设置';
-                    const deadlineColor = task.deadline && new Date(task.deadline) < new Date() ? 'text-red-500 font-bold' : 'text-gray-500';
-
-                    row.innerHTML = `
-                        <td class="px-4 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                                ${task.status} ${task.is_urgent ? '🔥' : ''}
-                            </span>
-                        </td>
-                        <td class="px-4 py-4">
-                            <div class="text-sm font-medium text-gray-900">${task.title}</div>
-                            <div class="text-xs text-gray-500">${task.description || ''}</div>
-                            <div class="text-xs ${deadlineColor} mt-1">📅 截止: ${deadlineText}</div>
-                        </td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
-                            ${task.platform}
-                        </td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                            <select onchange="updateStatus(${task.id}, this.value)" class="border rounded text-xs p-1 focus:ring-orange-500">
-                                <option value="待处理" ${task.status === '待处理' ? 'selected' : ''}>待处理</option>
-                                <option value="进行中" ${task.status === '进行中' ? 'selected' : ''}>进行中</option>
-                                <option value="已完成" ${task.status === '已完成' ? 'selected' : ''}>已完成</option>
-                            </select>
-                        </td>
-                    `;
-                    listElement.appendChild(row);
-                });
+                allTasks = await response.json();
+                applyFilters(); // 获取后立即应用筛选
             } catch (error) {
-                console.error('获取任务失败:', error);
+                console.error('获取失败', error);
             }
         }
 
+        // 搜索与筛选逻辑
+        function applyFilters() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const platformFilter = document.getElementById('filterPlatform').value;
+            
+            const filteredTasks = allTasks.filter(task => {
+                const matchesSearch = task.title.toLowerCase().includes(searchText);
+                const matchesPlatform = (platformFilter === '全部平台') || (task.platform === platformFilter);
+                return matchesSearch && matchesPlatform;
+            });
+
+            renderTaskList(filteredTasks);
+        }
+
+        // 渲染列表到页面
+        function renderTaskList(tasks) {
+            const listElement = document.getElementById('taskList');
+            listElement.innerHTML = '';
+
+            tasks.forEach(task => {
+                const row = document.createElement('tr');
+                const statusClass = task.status === '已完成' ? 'bg-gray-100 text-gray-600' : (task.is_urgent ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700');
+                const deadlineText = task.deadline ? new Date(task.deadline).toLocaleDateString() : '未设置';
+                const deadlineColor = task.deadline && new Date(task.deadline) < new Date() ? 'text-red-500 font-bold' : 'text-gray-500';
+
+                row.innerHTML = `
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                            ${task.status} ${task.is_urgent ? '🔥' : ''}
+                        </span>
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="text-sm font-medium text-gray-900">${task.title}</div>
+                        <div class="text-xs text-gray-500">${task.description || ''}</div>
+                        <div class="text-xs ${deadlineColor} mt-1">📅 截止: ${deadlineText}</div>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">${task.platform}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                        <select onchange="updateStatus(${task.id}, this.value)" class="border rounded text-xs p-1">
+                            <option value="待处理" ${task.status === '待处理' ? 'selected' : ''}>待处理</option>
+                            <option value="进行中" ${task.status === '进行中' ? 'selected' : ''}>进行中</option>
+                            <option value="已完成" ${task.status === '已完成' ? 'selected' : ''}>已完成</option>
+                        </select>
+                    </td>
+                `;
+                listElement.appendChild(row);
+            });
+        }
+
+        // 更新状态
         async function updateStatus(id, newStatus) {
-            try {
-                await fetch(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, {
-                    method: 'PUT'
-                });
-                fetchTasks();
-            } catch (error) {
-                alert('更新状态失败');
-            }
+            await fetch(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, { method: 'PUT' });
+            fetchTasks();
         }
 
         fetchTasks();
