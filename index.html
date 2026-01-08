@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CheerfulGoat 终极全功能版</title>
+    <title>CheerfulGoat 完整版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #fff7ed; font-family: sans-serif; padding: 20px; }
@@ -14,14 +14,11 @@
         .left-side { flex: 1; min-width: 300px; }
         .right-side { flex: 2; min-width: 400px; }
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; color: #9ca3af; font-size: 11px; padding: 10px; text-transform: uppercase; }
         td { padding: 15px; border-bottom: 1px solid #f9fafb; vertical-align: middle; }
         .status-select { width: 100%; padding: 6px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 11px; font-weight: bold; background: #f9fafb; margin-bottom: 8px; outline: none; }
-        .btn-action { width: 100%; padding: 6px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; transition: all 0.2s; margin-bottom: 4px; border: 1px solid transparent; text-align: center; }
+        .btn-action { width: 100%; padding: 6px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; margin-bottom: 4px; border: 1px solid transparent; text-align: center; }
         .btn-edit { color: #f97316; background: #fff7ed; border-color: #ffedd5; }
-        .btn-edit:hover { background: #f97316; color: white; }
         .btn-delete { color: #dc2626; background: #fef2f2; border-color: #fee2e2; }
-        .btn-delete:hover { background: #dc2626; color: white; }
     </style>
 </head>
 <body class="bg-orange-50/30">
@@ -36,7 +33,7 @@
                 <img src="WechatIMG473.jpg" alt="Logo" class="logo-img">
             </div>
             <h1 style="font-size: 24px; font-weight: 900; margin: 5px 0;">CheerfulGoat</h1>
-            <p style="color: #ea580c; font-weight: bold; font-size: 12px;">跨境业务任务管理 · 智能排序版</p>
+            <p style="color: #ea580c; font-weight: bold; font-size: 12px;">跨境业务任务管理 · 完整功能版</p>
             <button onclick="logout()" style="color: #9ca3af; text-decoration: underline; font-size: 12px; border: none; background: none; cursor: pointer;">安全登出</button>
         </div>
         
@@ -44,56 +41,49 @@
             <div class="left-side">
                 <div class="card">
                     <h2 style="font-weight: bold; margin-bottom: 20px; color: #ea580c;">📝 新增任务</h2>
-                    <form id="taskForm" style="display: flex; flex-direction: column; gap: 15px;">
-                        <input type="text" id="title" required placeholder="任务标题" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #f9fafb;">
-                        <select id="platform" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #f9fafb;">
+                    <form id="taskForm" style="display: flex; flex-direction: column; gap: 12px;">
+                        <input type="text" id="title" required placeholder="任务标题" style="padding: 12px; border: 1px solid #eee; border-radius: 10px;">
+                        <select id="platform" style="padding: 12px; border: 1px solid #eee; border-radius: 10px;">
                             <option>亚马逊</option><option>独立站</option><option>虾皮</option>
                             <option>TikTok</option><option>B端</option><option>杂项</option>
                         </select>
-                        <input type="date" id="deadline" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #f9fafb;">
-                        <div style="display: flex; align-items: center; padding: 12px; background: #fef2f2; border-radius: 10px; border: 1px solid #fee2e2;">
-                            <input type="checkbox" id="is_urgent" style="width: 20px; height: 20px;">
-                            <label style="margin-left: 10px; color: #b91c1c; font-weight: bold;">设为紧急任务 🔥</label>
+                        <input type="date" id="deadline" style="padding: 12px; border: 1px solid #eee; border-radius: 10px;">
+                        <textarea id="description" placeholder="任务详细描述/备注" style="padding: 12px; border: 1px solid #eee; border-radius: 10px; height: 80px;"></textarea>
+                        
+                        <div style="display: flex; align-items: center; padding: 10px; background: #fef2f2; border-radius: 10px; border: 1px solid #fee2e2;">
+                            <input type="checkbox" id="is_urgent" style="width: 18px; height: 18px;">
+                            <label style="margin-left: 10px; color: #b91c1c; font-weight: bold; font-size: 14px;">紧急任务 🔥</label>
                         </div>
-                        <div id="loadingStatus" style="font-size: 12px; color: #f97316; font-weight: bold; text-align: center; display: none;">⏳ 处理中，请稍候...</div>
-                        <button type="submit" id="submitBtn" style="background: #f97316; color: white; font-weight: bold; padding: 15px; border: none; border-radius: 12px; cursor: pointer;">提交到看板</button>
+                        <div id="loadingStatus" style="font-size: 11px; color: #f97316; font-weight: bold; text-align: center; display: none;">⏳ 正在云端同步...</div>
+                        <button type="submit" id="submitBtn" style="background: #f97316; color: white; font-weight: bold; padding: 14px; border: none; border-radius: 10px; cursor: pointer;">提交任务</button>
                     </form>
                 </div>
             </div>
 
             <div class="right-side">
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="🔍 搜索任务标题..." style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ffedd5; outline: none; background: white; font-size: 14px;">
-                    <select id="filterPlatform" onchange="applyFilters()" style="padding: 12px; border-radius: 12px; border: 1px solid #ffedd5; outline: none; background: white; font-size: 14px;">
+                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="🔍 搜索任务..." style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ffedd5; outline: none;">
+                    <select id="filterPlatform" onchange="applyFilters()" style="padding: 12px; border-radius: 12px; border: 1px solid #ffedd5;">
                         <option value="全部平台">全部平台</option>
-                        <option>亚马逊</option><option>独立站</option><option>虾皮</option>
-                        <option>TikTok</option><option>B端</option><option>杂项</option>
+                        <option>亚马逊</option><option>独立站</option><option>虾皮</option><option>TikTok</option><option>B端</option><option>杂项</option>
                     </select>
                 </div>
 
                 <div class="card" style="padding: 0;">
-                    <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
                         <h2 style="font-weight: bold;">📊 实时看板</h2>
-                        <span id="taskCount" style="font-size: 11px; font-weight: bold; color: #f97316; background: #fff7ed; padding: 4px 12px; border-radius: 20px; border: 1px solid #ffedd5;">同步中...</span>
+                        <span id="taskCount" style="font-size: 11px; color: #f97316;">--</span>
                     </div>
                     <div style="overflow-x: auto;">
                         <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 90px;">状态</th>
-                                    <th>任务明细</th>
-                                    <th style="width: 110px; text-align: center;">操作管理</th>
-                                </tr>
-                            </thead>
                             <tbody id="taskList"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div style="text-align: center; margin-top: 50px; color: #cbd5e1; font-size: 10px; letter-spacing: 2px; font-weight: bold;">
-            VERSION: 2026.01.08.FULL_ACTION
+        <div style="text-align: center; margin-top: 40px; color: #cbd5e1; font-size: 10px; font-weight: bold;">
+            VERSION: 2026.01.08.COMPLETE_RECOVERY
         </div>
     </div>
 
@@ -115,6 +105,7 @@
             const data = {
                 title: document.getElementById('title').value,
                 platform: document.getElementById('platform').value,
+                description: document.getElementById('description').value, // 描述：已恢复
                 is_urgent: document.getElementById('is_urgent').checked,
                 deadline: document.getElementById('deadline').value || null
             };
@@ -131,7 +122,7 @@
             const res = await fetchWithAuth(`${API_BASE}/tasks/`);
             if (res && res.ok) {
                 allTasks = await res.json();
-                document.getElementById('taskCount').textContent = `共有 ${allTasks.length} 项任务`;
+                document.getElementById('taskCount').textContent = `共 ${allTasks.length} 项`;
                 applyFilters();
             }
         }
@@ -148,7 +139,7 @@
             list.innerHTML = '';
             const todayStr = new Date().toLocaleDateString();
 
-            // 排序逻辑
+            // 排序逻辑保持不变
             tasks.sort((a, b) => {
                 if (a.status === '已完成' && b.status !== '已完成') return 1;
                 if (a.status !== '已完成' && b.status === '已完成') return -1;
@@ -156,8 +147,7 @@
                 const bDate = b.deadline ? new Date(b.deadline).toLocaleDateString() : '';
                 if (aDate === todayStr && bDate !== todayStr) return -1;
                 if (aDate !== todayStr && bDate === todayStr) return 1;
-                if (a.is_urgent !== b.is_urgent) return b.is_urgent ? 1 : -1;
-                return new Date(a.deadline || '9999-12-31') - new Date(b.deadline || '9999-12-31');
+                return b.is_urgent - a.is_urgent;
             });
 
             tasks.forEach(task => {
@@ -166,15 +156,15 @@
                 const deadlineStr = dDate ? dDate.toLocaleDateString() : '长期';
                 const statusColor = task.status === '已完成' ? '#9ca3af' : (task.is_urgent ? '#dc2626' : '#f97316');
                 const isToday = dDate ? dDate.toLocaleDateString() === todayStr : false;
-                const deadlineStyle = isToday ? 'color: #dc2626; font-weight: bold; background: #fff1f2; padding: 1px 5px; border-radius: 4px;' : 'color:#9ca3af;';
 
                 row.innerHTML = `
-                    <td><span style="font-size:10px; font-weight:bold; color:white; background:${statusColor}; padding:3px 8px; border-radius:6px; white-space:nowrap;">${task.status} ${task.is_urgent ? '🔥' : ''}</span></td>
+                    <td style="width:80px;"><span style="font-size:10px; font-weight:bold; color:white; background:${statusColor}; padding:3px 8px; border-radius:6px; display:inline-block;">${task.status} ${task.is_urgent ? '🔥' : ''}</span></td>
                     <td>
-                        <div style="font-size:14px; font-weight:bold; color: #1f2937; margin-bottom: 4px;">[${task.platform}] ${task.title}</div>
-                        <div style="font-size:11px; ${deadlineStyle}">📅 ${isToday ? '今天截止' : '截止: ' + deadlineStr}</div>
+                        <div style="font-size:14px; font-weight:bold; color: #1f2937;">[${task.platform}] ${task.title}</div>
+                        <div style="font-size:11px; color:#6b7280; margin: 3px 0;">${task.description || ''}</div>
+                        <div style="font-size:10px; ${isToday ? 'color:red;font-weight:bold;' : 'color:#9ca3af;'}">📅 ${isToday ? '今天截止' : '截止: ' + deadlineStr}</div>
                     </td>
-                    <td>
+                    <td style="width:110px;">
                         <div style="display: flex; flex-direction: column;">
                             <select onchange="updateStatus(${task.id}, this.value)" class="status-select">
                                 <option value="待处理" ${task.status === '待处理' ? 'selected' : ''}>待处理</option>
@@ -190,23 +180,20 @@
             });
         }
 
-        async function updateStatus(id, newStatus) {
-            await fetchWithAuth(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, { method: 'PUT' });
-            fetchTasks();
-        }
-
-        // --- 核心更新：编辑任务功能 ---
         async function editTask(id) {
             const task = allTasks.find(t => t.id === id);
             if (!task) return;
 
-            const newTitle = prompt("修改任务名称：", task.title);
-            if (newTitle === null) return; // 用户点取消
+            const newTitle = prompt("修改标题：", task.title);
+            if (newTitle === null) return;
 
-            const newDate = prompt("修改截止日期 (格式: YYYY-MM-DD，留空表示长期)：", task.deadline ? task.deadline.split('T')[0] : "");
+            const newDesc = prompt("修改描述/备注：", task.description || ""); // 修改描述：已恢复
+            if (newDesc === null) return;
+
+            const newDate = prompt("修改日期 (YYYY-MM-DD)：", task.deadline ? task.deadline.split('T')[0] : "");
             if (newDate === null) return;
 
-            const newUrgent = confirm("该任务是否设为【紧急】？");
+            const newUrgent = confirm("是否设为紧急任务？");
 
             toggleLoading(true);
             const res = await fetchWithAuth(`${API_BASE}/tasks/${id}`, {
@@ -214,6 +201,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     title: newTitle,
+                    description: newDesc,
                     deadline: newDate || null,
                     is_urgent: newUrgent
                 })
@@ -222,8 +210,13 @@
             if (res && res.ok) fetchTasks();
         }
 
+        async function updateStatus(id, newStatus) {
+            await fetchWithAuth(`${API_BASE}/tasks/${id}/status?new_status=${encodeURIComponent(newStatus)}`, { method: 'PUT' });
+            fetchTasks();
+        }
+
         async function confirmDelete(id) {
-            if (confirm("⚠️ 确定要永久删除吗？")) {
+            if (confirm("⚠️ 确定要删除吗？")) {
                 const res = await fetchWithAuth(`${API_BASE}/tasks/${id}`, { method: 'DELETE' });
                 if (res && res.ok) fetchTasks();
             }
